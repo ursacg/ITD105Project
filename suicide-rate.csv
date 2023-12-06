@@ -1,4 +1,4 @@
-country,country_iso,year,sex,age,suicides_no,population,suicides/100k pop, gdp_for_year ($) ,gdp_per_capita ($),generation
+country,country_iso,year,sex,age,suicides_no,population,suicides/100k pop,gdp_for_year($),gdp_per_capita($),generation
 Albania,ALB,1987,male,5-14 years,0,338200,0,2156624900,796,Generation X
 Albania,ALB,1987,male,15-24 years,21,312900,6.71,2156624900,796,Generation X
 Albania,ALB,1987,male,25-34 years,9,274300,3.28,2156624900,796,Boomers

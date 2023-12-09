@@ -23,7 +23,7 @@ app.layout = html.Div([
         html.P("Selected Year: "),
         dcc.Dropdown(id='csv-year',
                      options=[{'label': y, 'value': y} for y in year_list],
-                     placeholder='Select a year',
+                     value=2000,
                      searchable=False,
                      clearable=False,
                      style={'width': '40%'}),

@@ -6,7 +6,6 @@ import pandas as pd
 
 app = Dash(__name__)
 df = pd.read_csv('suicide-rate.csv')
-#year_list = df['year'].unique()
 country_list = df['country'].unique()
 
 app.layout = html.Div([
@@ -24,14 +23,14 @@ app.layout = html.Div([
         html.Label([
                     "Selected Year: ",
                     dcc.Dropdown(id='csv-year',
-                    #options=[{'label': y, 'value': y} for y in year_list],
                     options=list(range(1986, 2016)),
                     value=2000,
                     searchable=False,
                     clearable=False,
-                    style={'width': '40%'}),
+                    style={'width': '50%'}
+                    ),
                     ]),
-    ]),
+            ]),
 
     html.Div([
         html.Label([
@@ -42,9 +41,9 @@ app.layout = html.Div([
                 value='Philippines',
                 multi=True,
                 clearable=False,
-                style={'width': '40%'}),
+                style={'width': '50%'}
+                ),
                 ]),
-        html.Br(),
 
         html.Label([
             "Selected Age: ",
@@ -61,9 +60,9 @@ app.layout = html.Div([
                 value='5-14 years',
                 searchable=False,
                 clearable=False,
-                style={'width': '40%'}),
+                style={'width': '50%'}
+                ),
                 ]),
-        html.Br(),
 
         html.Label([
             "Selected Sex: ",
@@ -76,27 +75,44 @@ app.layout = html.Div([
                 value='male',
                 searchable=False,
                 clearable=False,
-                style={'width': '40%'}),
+                style={'width': '50%'}
+                ),
                 ]),
-        html.Br(),
 
-        html.Label([
-            "Selected Generation: ",
-            dcc.Dropdown(
-                id='csv-generation',
-                options=[
-                    {'label': 'G.I. Generation', 'value': 'G.I. Generation'},
-                    {'label': 'Silent Generation', 'value': 'Silent'},
-                    {'label': 'Baby Boomers Generation', 'value': 'Boomers'},
-                    {'label': 'Generation X', 'value': 'Generation X'},
-                    {'label': 'Millenials Generation', 'value': 'Millenials'},
-                    {'label': 'Generation Z', 'value': 'Generation Z'},
-                ],
-                value='Generation Z',
-                searchable=False,
-                clearable=False,
-                style={'width': '40%'}),
-                ])
+        # html.Label([
+        #     "Selected Generation: ",
+        #     dcc.Dropdown(
+        #         id='csv-generation',
+        #         options=[
+        #             {'label': 'G.I. Generation', 'value': 'G.I. Generation'},
+        #             {'label': 'Silent Generation', 'value': 'Silent'},
+        #             {'label': 'Baby Boomers Generation', 'value': 'Boomers'},
+        #             {'label': 'Generation X', 'value': 'Generation X'},
+        #             {'label': 'Millenials Generation', 'value': 'Millenials'},
+        #             {'label': 'Generation Z', 'value': 'Generation Z'},
+        #         ],
+        #         value='Generation Z',
+        #         searchable=False,
+        #         clearable=False,
+        #         style={'width': '50%'}
+        #         ),
+        #         ])
+    ]),
+
+    html.Div([
+        dcc.Graph(id='csv-graph-suicides')
+    ]),
+
+    html.Div([
+        dcc.Graph(id='csv-graph-population')
+    ]),
+
+    html.Div([
+        dcc.Graph(id='csv-graph-gdp-year')
+    ]),
+
+    html.Div([
+        dcc.Graph(id='csv-graph-gdp-capita')
     ])
 
 ])
@@ -119,6 +135,94 @@ def update_map(selected_year):
                         range_color=(0, 225),
                         width=1500,
                         height=550)
+    return fig
+
+@callback(
+    Output('csv-graph-suicides', 'figure'),
+    Input('csv-country', 'value'),
+    Input('csv-age', 'value'),
+    Input('csv-sex', 'value')
+)
+def update_graph_suicide(selected_country, selected_age, selected_sex):
+    selected_df = df[df.country == selected_country][df.age == selected_age][df.sex == selected_sex]
+
+    fig = px.line(selected_df,
+                  x='year',
+                  y='suicides_no',
+                  color='country',
+                  labels={
+                      'year': 'Year',
+                      'suicides_no': 'No. of Suicides',
+                      'country': 'Selected Country'
+                  },
+                  title='No. of Suicides in a Country Based on Age and Sex',
+                  markers=True)
+    return fig
+
+@callback(
+    Output('csv-graph-population', 'figure'),
+    Input('csv-country', 'value'),
+    Input('csv-age', 'value'),
+    Input('csv-sex', 'value')
+)
+def update_graph_population(selected_country, selected_age, selected_sex):
+    selected_df = df[df.country == selected_country][df.age == selected_age][df.sex == selected_sex]
+
+    fig = px.line(selected_df,
+                  x='year',
+                  y='population',
+                  color='country',
+                  labels={
+                      'year': 'Year',
+                      'population': 'Population',
+                      'country': 'Selected Country'
+                  },
+                  title='Population of a Country Based on Age and Sex',
+                  markers=True)
+    return fig
+
+@callback(
+    Output('csv-graph-gdp-year', 'figure'),
+    Input('csv-country', 'value'),
+    Input('csv-age', 'value'),
+    Input('csv-sex', 'value')
+)
+def update_graph_gdp_year(selected_country, selected_age, selected_sex):
+    selected_df = df[df.country == selected_country][df.age == selected_age][df.sex == selected_sex]
+
+    fig = px.line(selected_df,
+                  x='year',
+                  y='gdp_for_year($)',
+                  color='country',
+                  labels={
+                      'year': 'Year',
+                      'gdp_for_year($)': 'GDP per Year ($)',
+                      'country': 'Selected Country'
+                  },
+                  title='Yearly Gross Domestic Product (GDP) of a Country Based on Age and Sex',
+                  markers=True)
+    return fig
+
+@callback(
+    Output('csv-graph-gdp-capita', 'figure'),
+    Input('csv-country', 'value'),
+    Input('csv-age', 'value'),
+    Input('csv-sex', 'value')
+)
+def update_graph_gdp_capita(selected_country, selected_age, selected_sex):
+    selected_df = df[df.country == selected_country][df.age == selected_age][df.sex == selected_sex]
+
+    fig = px.line(selected_df,
+                  x='year',
+                  y='gdp_per_capita($)',
+                  color='country',
+                  labels={
+                      'year': 'Year',
+                      'gdp_per_capita($)': 'GDP per Capita ($)',
+                      'country': 'Selected Country'
+                  },
+                  title='Yearly Gross Domestic Product (GDP) per Capita of a Country Based on Age and Sex',
+                  markers=True)
     return fig
 
 if __name__ == '__main__':

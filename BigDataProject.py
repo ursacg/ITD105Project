@@ -11,12 +11,8 @@ country_list = df['country'].unique()
 app.layout = html.Div([
 
     html.Div([
-        html.H1("Suicide Rates of Countries by Year",
+        html.H1("Suicide Rate of Countries Based on Age and Sex (1986-2015)",
                 style={'textAlign': 'center'})
-    ]),
-
-    html.Div([
-        dcc.Graph(id='csv-map'),
     ]),
 
     html.Div([
@@ -30,39 +26,24 @@ app.layout = html.Div([
                     style={'width': '50%'}
                     ),
                     ]),
-            ]),
-
-    html.Div([
-        html.Label([
-            "Selected Country: ",
-            dcc.Dropdown(
-                id='csv-country',
-                options=[{'label': c, 'value': c} for c in country_list],
-                value='Philippines',
-                multi=True,
-                clearable=False,
-                style={'width': '50%'}
-                ),
-                ]),
 
         html.Label([
-            "Selected Age: ",
-            dcc.Dropdown(
-                id='csv-age',
-                options=[
+                    "Selected Age: ",
+                    dcc.Dropdown(id='csv-age',
+                    options=[
                     {'label': '5-14 years', 'value': '5-14 years'},
                     {'label': '15-24 years', 'value': '15-24 years'},
                     {'label': '25-34 years', 'value': '25-34 years'},
                     {'label': '35-54 years', 'value': '35-54 years'},
                     {'label': '55-74 years', 'value': '55-74 years'},
                     {'label': '75+ years', 'value': '75+ years'},
-                ],
-                value='5-14 years',
-                searchable=False,
-                clearable=False,
-                style={'width': '50%'}
-                ),
-                ]),
+                    ],
+                    value='5-14 years',
+                    searchable=False,
+                    clearable=False,
+                    style={'width': '50%'}
+                    ),
+                    ]),
 
         html.Label([
             "Selected Sex: ",
@@ -79,24 +60,25 @@ app.layout = html.Div([
                 ),
                 ]),
 
-        # html.Label([
-        #     "Selected Generation: ",
-        #     dcc.Dropdown(
-        #         id='csv-generation',
-        #         options=[
-        #             {'label': 'G.I. Generation', 'value': 'G.I. Generation'},
-        #             {'label': 'Silent Generation', 'value': 'Silent'},
-        #             {'label': 'Baby Boomers Generation', 'value': 'Boomers'},
-        #             {'label': 'Generation X', 'value': 'Generation X'},
-        #             {'label': 'Millenials Generation', 'value': 'Millenials'},
-        #             {'label': 'Generation Z', 'value': 'Generation Z'},
-        #         ],
-        #         value='Generation Z',
-        #         searchable=False,
-        #         clearable=False,
-        #         style={'width': '50%'}
-        #         ),
-        #         ])
+            ]),
+
+    html.Div([
+        dcc.Graph(id='csv-map'),
+    ]),
+
+    html.Div([
+        html.Label([
+            "Selected Country: ",
+            dcc.Dropdown(
+                id='csv-country',
+                options=[{'label': c, 'value': c} for c in country_list],
+                value='Philippines',
+                multi=True,
+                clearable=False,
+                style={'width': '50%'}
+                ),
+                ]),
+
     ]),
 
     html.Div([
@@ -119,10 +101,12 @@ app.layout = html.Div([
 
 @callback(
     Output('csv-map', 'figure'),
-    Input('csv-year', 'value')
+    Input('csv-year', 'value'),
+    Input('csv-age', 'value'),
+    Input('csv-sex', 'value')
 )
-def update_map(selected_year):
-    selected_df = df[df.year == selected_year]
+def update_map(selected_year, selected_age, selected_sex):
+    selected_df = df[df.year == selected_year][df.age == selected_age][df.sex == selected_sex]
 
     fig = px.choropleth(selected_df,
                         locationmode='ISO-3',

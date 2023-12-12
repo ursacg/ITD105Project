@@ -6,7 +6,7 @@ import pandas as pd
 
 app = Dash(__name__)
 df = pd.read_csv('suicide-rate.csv')
-country_list = df['country'].unique()
+country_list = [{'label': c, 'value': c} for c in df['country'].unique()]
 
 app.layout = html.Div([
 
@@ -71,8 +71,8 @@ app.layout = html.Div([
             "Selected Country: ",
             dcc.Dropdown(
                 id='csv-country',
-                options=[{'label': c, 'value': c} for c in country_list],
-                value='Philippines',
+                options=country_list,
+                value=['Philippines', 'South Africa', 'Brazil', 'United States', 'France', 'Australia'],
                 multi=True,
                 clearable=False,
                 style={'width': '50%'}
@@ -106,7 +106,9 @@ app.layout = html.Div([
     Input('csv-sex', 'value')
 )
 def update_map(selected_year, selected_age, selected_sex):
-    selected_df = df[df.year == selected_year][df.age == selected_age][df.sex == selected_sex]
+    selected_df = df[(df.year == selected_year) &
+                     (df.age == selected_age) &
+                     (df.sex == selected_sex)]
 
     fig = px.choropleth(selected_df,
                         locationmode='ISO-3',
@@ -123,12 +125,14 @@ def update_map(selected_year, selected_age, selected_sex):
 
 @callback(
     Output('csv-graph-suicides', 'figure'),
-    Input('csv-country', 'value'),
+    [Input('csv-country', 'value')],
     Input('csv-age', 'value'),
     Input('csv-sex', 'value')
 )
 def update_graph_suicide(selected_country, selected_age, selected_sex):
-    selected_df = df[df.country == selected_country][df.age == selected_age][df.sex == selected_sex]
+    selected_df = df[(df['country'].isin(selected_country)) &
+                     (df.age == selected_age) &
+                     (df.sex == selected_sex)]
 
     fig = px.line(selected_df,
                   x='year',
@@ -145,12 +149,14 @@ def update_graph_suicide(selected_country, selected_age, selected_sex):
 
 @callback(
     Output('csv-graph-population', 'figure'),
-    Input('csv-country', 'value'),
+    [Input('csv-country', 'value')],
     Input('csv-age', 'value'),
     Input('csv-sex', 'value')
 )
 def update_graph_population(selected_country, selected_age, selected_sex):
-    selected_df = df[df.country == selected_country][df.age == selected_age][df.sex == selected_sex]
+    selected_df = df[(df['country'].isin(selected_country)) &
+                     (df.age == selected_age) &
+                     (df.sex == selected_sex)]
 
     fig = px.line(selected_df,
                   x='year',
@@ -167,12 +173,14 @@ def update_graph_population(selected_country, selected_age, selected_sex):
 
 @callback(
     Output('csv-graph-gdp-year', 'figure'),
-    Input('csv-country', 'value'),
+    [Input('csv-country', 'value')],
     Input('csv-age', 'value'),
     Input('csv-sex', 'value')
 )
 def update_graph_gdp_year(selected_country, selected_age, selected_sex):
-    selected_df = df[df.country == selected_country][df.age == selected_age][df.sex == selected_sex]
+    selected_df = df.loc[(df['country'].isin(selected_country)) &
+                         (df.age == selected_age) &
+                         (df.sex == selected_sex)]
 
     fig = px.line(selected_df,
                   x='year',
@@ -189,12 +197,14 @@ def update_graph_gdp_year(selected_country, selected_age, selected_sex):
 
 @callback(
     Output('csv-graph-gdp-capita', 'figure'),
-    Input('csv-country', 'value'),
+    [Input('csv-country', 'value')],
     Input('csv-age', 'value'),
     Input('csv-sex', 'value')
 )
 def update_graph_gdp_capita(selected_country, selected_age, selected_sex):
-    selected_df = df[df.country == selected_country][df.age == selected_age][df.sex == selected_sex]
+    selected_df = df.loc[(df['country'].isin(selected_country)) &
+                         (df.age == selected_age) &
+                         (df.sex == selected_sex)]
 
     fig = px.line(selected_df,
                   x='year',
